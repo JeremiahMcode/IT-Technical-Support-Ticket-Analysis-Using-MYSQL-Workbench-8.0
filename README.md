@@ -1,20 +1,14 @@
-IT Technical Support Ticket Analysis
+**IT Technical Support Ticket Analysis**
 
 This projects demonstrate my proficiency in SQL and my ability to analyze operational data to generate meaningful business insights. They highlight skills in data cleaning, investigation, KPI analysis, and performance evaluation.
 
-IT Help Desk Ticket Analysis
-
-Technical Support Dataset.csv
-
-Support ticket SQL code.txt
-
-Project Description
+**Project Description**
 
 This project involved analyzing IT help desk support ticket data to evaluate operational efficiency, service quality, and agent performance. The dataset contains detailed information on ticket creation and resolution times, issue topics, products, assigned agents, agent groups, and customer satisfaction feedback.
 
 I used SQL to explore the data, answer business-driven questions, and uncover insights related to resolution efficiency, SLA compliance, backlog risk, and customer experience. The goal of the analysis was to simulate real-world IT service desk analytics used by IT operations and support leadership.
 
-Tasks Performed
+**Tasks Performed**
 
 Performed initial data exploration and validation checks on the IT support ticket dataset
 
@@ -40,7 +34,7 @@ Used SQL techniques such as GROUP BY, HAVING, CASE statements, CTEs, and window 
 
 Summarized findings in a written analysis for business and leadership consumption
 
-Key Insights
+**Key Insights**
 
 Most tickets are resolved within acceptable timeframes, though SLA exceptions are concentrated in specific issue categories
 
@@ -50,12 +44,16 @@ Agent performance varies significantly across groups, indicating opportunities t
 
 Faster ticket resolution is generally associated with higher customer satisfaction scores
 
-Files in This Repository
-File Name	Description
-Technical Support Dataset.csv	Raw IT help desk ticket data
-Support ticket SQL code.txt	SQL queries used for all analyses
-IT Support Ticket Analysis Document.docx	Written report summarizing findings, insights, and recommendations
-About SQL
+**Files in This Repository**
+
+IT Help Desk Ticket Analysis (Raw IT help desk ticket data)
+
+Technical Support Dataset.csv (SQL queries used for all analyses)
+
+Support ticket SQL code.txt (Written report summarizing findings, insights, and recommendations)
+
+
+**About SQL**
 
 SQL (Structured Query Language) is used to interact with relational databases and perform data analysis tasks such as:
 
@@ -67,9 +65,9 @@ Ranking and comparing entities using window functions
 
 Identifying patterns and operational inefficiencies
 
-This project was completed using MySQL / MySQL Workbench 8.0.
+**This project was completed using MySQL / MySQL Workbench 8.0.**
 
-Usage
+**Usage**
 
 Install MySQL or MySQL Workbench
 
