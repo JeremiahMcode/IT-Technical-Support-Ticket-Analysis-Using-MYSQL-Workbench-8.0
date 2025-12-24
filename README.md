@@ -1,6 +1,6 @@
 # **IT Technical Support Ticket Analysis**
 
-This project demonstrate my proficiency in SQL and my ability to analyze operational data to generate meaningful business insights. They highlight skills in data cleaning, investigation, KPI analysis, and performance evaluation.
+This project demonstrates my proficiency in SQL and my ability to analyze operational data to generate meaningful business insights. They highlight skills in data cleaning, investigation, KPI analysis, and performance evaluation.
 
 DATA GRABBED FROM: https://www.kaggle.com/datasets/suvroo/technical-support-dataset
 
