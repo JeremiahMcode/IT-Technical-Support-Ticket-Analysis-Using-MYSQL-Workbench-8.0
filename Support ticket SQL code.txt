@@ -1,0 +1,130 @@
+SELECT * FROM it_support_ticket.`technical support dataset`;
+
+SELECT COUNT(*) 
+FROM it_support_ticket.`technical support dataset`
+WHERE Resolution_time = '';
+
+SELECT COUNT(*) 
+FROM it_support_ticket.`technical support dataset`
+WHERE Close_time = '';
+
+UPDATE it_support_ticket.`technical support dataset`
+SET Resolution_time = NULL
+WHERE Resolution_time = '';
+
+UPDATE it_support_ticket.`technical support dataset`
+SET Close_time = NULL
+WHERE Close_time = '';
+
+-- average ticket completion time in hours
+WITH resolution_minutes AS (
+SELECT AVG(timestampdiff(minute, Created_time, Resolution_time)) as average_resolution_time_minutes
+FROM it_support_ticket.`technical support dataset`
+)
+SELECT ROUND(average_resolution_time_minutes/60, 2) as average_resolution_time_in_hours
+from resolution_minutes
+
+-- The average ticket completion time for each topic in hours
+WITH resolution_minutes AS (
+SELECT AVG(timestampdiff(minute, Created_time, Resolution_time)) as average_resolution_time_minutes, Topic
+FROM it_support_ticket.`technical support dataset`
+GROUP BY 2
+)
+SELECT Topic, ROUND(average_resolution_time_minutes/60, 2) as average_resolution_time
+FROM resolution_minutes 
+ORDER BY average_resolution_time DESC
+
+-- percentage of tickets that have not been resolved
+WITH unsolved as (
+SELECT COUNT(*) as unsolved_tickets
+FROM it_support_ticket.`technical support dataset`
+WHERE Close_time IS NULL
+),total as (
+SELECT COUNT(*) as created_tickets
+FROM it_support_ticket.`technical support dataset`
+WHERE Ticket_ID IS NOT NULL
+)
+SELECT ROUND((u.unsolved_tickets/t.created_tickets * 100),2) as percentage_of_tickets_unsolved
+FROM total t 
+CROSS JOIN unsolved u 
+
+-- The top 3 topics and product groups that make up the total unsolved tickets
+SELECT Topic, Product_group, COUNT(*) as unsolved_tickets
+FROM it_support_ticket.`technical support dataset`
+WHERE Close_time IS NULL
+GROUP BY 1,2
+ORDER BY unsolved_tickets DESC
+LIMIT 3
+
+-- Percentage of tickets that are solved in 24 hours or less
+WITH res_time as(
+SELECT COUNT(*) as appropriate_resolutions
+FROM it_support_ticket.`technical support dataset`
+WHERE Created_time IS NOT NULL
+AND Resolution_time IS NOT NULL
+AND TIMESTAMPDIFF(HOUR, Created_time, Resolution_time) <= 24
+), total_res as (
+SELECT COUNT(*) as total_resolutions
+FROM it_support_ticket.`technical support dataset`
+WHERE Created_time IS NOT NULL
+AND Resolution_time IS NOT NULL
+)
+SELECT ROUND(rt.appropriate_resolutions / tr.total_resolutions *100,2) as appropriate_resolution_time_percentage
+FROM res_time rt
+CROSS JOIN total_res tr
+
+-- Top 2 agents per group based on average feedback
+WITH rated_agents as (
+SELECT Agent_Name, Agent_Group, 
+ROUND(AVG(Survey_results),2) as average_feedback
+FROM it_support_ticket.`technical support dataset`
+GROUP BY Agent_Name, Agent_Group
+), ranking as (
+SELECT
+Agent_Name, Agent_Group, average_feedback,
+RANK() OVER (PARTITION BY Agent_Group ORDER BY average_feedback DESC) as agent_rank_within_group
+FROM rated_agents)
+SELECT Agent_Name, Agent_Group, average_feedback,agent_rank_within_group
+FROM ranking
+WHERE agent_rank_within_group <=2
+
+-- the 3 highest agent percentages that do not fall within sla standards 
+WITH t_sla as(
+SELECT Agent_Name, COUNT(SLA_For_Resolution) as total_sla
+FROM it_support_ticket.`technical support dataset`
+GROUP BY 1
+), negative_sla as(
+SELECT Agent_Name, COUNT(*) as not_within_sla
+FROM it_support_ticket.`technical support dataset`
+WHERE SLA_For_Resolution = 'SLA Violated' 
+GROUP BY 1)
+SELECT ns.Agent_Name, ROUND(ns.not_within_sla / ts.total_sla * 100,2) as percentage_not_within_slaStandards
+FROM negative_sla ns
+JOIN t_sla ts ON ts.Agent_Name = ns.Agent_Name
+GROUP BY 1
+ORDER BY percentage_not_within_slaStandards DESC
+LIMIT 3
+
+-- agents who performed above the agent group average
+WITH agent_avg as (
+SELECT Agent_Name, Agent_Group, AVG(Survey_results) as agent_avg_feedback
+FROM it_support_ticket.`technical support dataset`
+GROUP BY Agent_Name, Agent_Group
+), group_avg as (
+SELECT Agent_Group, AVG(Survey_results) as group_avg_feedback
+FROM it_support_ticket.`technical support dataset`
+GROUP BY Agent_Group
+)
+SELECT a.Agent_Name, a.Agent_Group, a.agent_avg_feedback, g.group_avg_feedback
+FROM agent_avg a
+JOIN group_avg g ON a.Agent_Group = g.Agent_Group
+WHERE a.agent_avg_feedback > g.group_avg_feedback
+
+
+-- Determining whether higher satisfaction rate correlates with faster resolution time
+SELECT Survey_results as star_rating,
+AVG(TIMESTAMPDIFF(HOUR,Created_time,Resolution_time)) as avg_resolution_hours
+FROM it_support_ticket.`technical support dataset`
+WHERE Survey_results in (1, 2, 3, 4, 5)
+GROUP BY Survey_results
+ORDER BY Survey_results
